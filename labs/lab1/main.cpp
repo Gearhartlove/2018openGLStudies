@@ -1,6 +1,45 @@
 #include <iostream>
-
 #include "bitmap_image.hpp"
+
+struct Point {
+    int x;
+    int y;
+    int z;
+    float r; //Red
+    float g; //Blue
+    float b; //Green
+};
+
+std::string * tokenize(std::string s) {
+    std::string tokens [6];
+    std::string return_message;
+    std::string delimiter;
+
+    // comma
+    delimiter = ",";
+    int start = 0;
+    int pos = 0;
+    int index = 0;
+    std::string token;
+
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+//        tokens[index++] = s.substr(0, pos);
+        token = s.substr(0, pos);
+        std::cout << token << std::endl;
+        s.erase(0, pos + delimiter.length());
+    }
+
+    std::cout << s << std::endl;
+    // colon
+
+    return tokens;
+}
+
+//Point create_point(std::string) {
+//    return Point {
+//
+//    };
+//}
 
 int main(int argc, char** argv) {
     /*
@@ -10,10 +49,22 @@ int main(int argc, char** argv) {
           You'll need to get the x and y coordinate as floating point values
           from the user for 3 points that make up a triangle.
 
+
       Part 3:
           You'll need to also request 3 colors from the user each having
           3 floating point values (red, green and blue) that range from 0 to 1.
     */
+
+    Point points [3];
+
+    std::cout << "Enter 3 points (enter a point as x,y:r,g,b): \n";
+    // Part 1
+    for (int i = 0; i < 1; i++) {
+        std::string data;
+        std::cin >> data;
+        tokenize(data);
+//        points[i] = create_point(tokenize(data, ","));
+    }
 
     // create an image 640 pixels wide by 480 pixels tall
     bitmap_image image(640, 480);
