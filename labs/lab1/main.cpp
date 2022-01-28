@@ -4,37 +4,42 @@
 struct Point {
     int x;
     int y;
-    int z;
-    float r; //Red
-    float g; //Blue
-    float b; //Green
+    int r; //Red
+    int g; //Blue
+    int b; //Green
+
+    Point(int X, int Y, int R, int G, int B) : x(X), y(Y), r(R), g(G), b(B)
+    {
+    }
 };
 
-std::string * tokenize(std::string s) {
-    std::string tokens [6];
-    std::string return_message;
-    std::string delimiter;
+std::vector<std::string> tokenize(std::string s, std::string delimiter) {
+    std::vector<std::string> tokens;
+    std::string token_string;
 
     // comma
-    delimiter = ",";
     int start = 0;
     int pos = 0;
     int index = 0;
     std::string token;
 
+    std::replace(s.begin(), s.end(), ':', ',');
+
     while ((pos = s.find(delimiter)) != std::string::npos) {
-//        tokens[index++] = s.substr(0, pos);
         token = s.substr(0, pos);
         std::cout << token << std::endl;
+//        tokens[index++] = token;
+        tokens.push_back(token);
         s.erase(0, pos + delimiter.length());
     }
-
-    std::cout << s << std::endl;
-    // colon
-
+    tokens.push_back(s);
     return tokens;
 }
 
+Point create_point(std::vector<std::string> tokens) {
+    return {std::stoi(tokens[0]), std::stoi(tokens[1]), std::stoi(tokens[2]),
+                 std::stoi(tokens[3]), std::stoi(tokens[4])};
+}
 //Point create_point(std::string) {
 //    return Point {
 //
@@ -55,16 +60,17 @@ int main(int argc, char** argv) {
           3 floating point values (red, green and blue) that range from 0 to 1.
     */
 
-    Point points [3];
+    std::vector<Point> points;
 
     std::cout << "Enter 3 points (enter a point as x,y:r,g,b): \n";
     // Part 1
-    for (int i = 0; i < 1; i++) {
-        std::string data;
-        std::cin >> data;
-        tokenize(data);
-//        points[i] = create_point(tokenize(data, ","));
-    }
+    std::string p1 = "50,50:1,0,0";
+    std::string p2 = "600,20:0,1,0";
+    std::string p3 = "300,400:0,0,1";
+    points.push_back(create_point(tokenize(p1, ",")));
+    points.push_back(create_point(tokenize(p2, ",")));
+    points.push_back(create_point(tokenize(p3, ",")));
+
 
     // create an image 640 pixels wide by 480 pixels tall
     bitmap_image image(640, 480);
@@ -91,6 +97,6 @@ int main(int argc, char** argv) {
           from 0 to 255. Be sure to make the conversion.
     */
 
-    image.save_image("triangle.bmp");
-    std::cout << "Success" << std::endl;
+//    image.save_image("triangle.bmp");
+//    std::cout << "Success" << std::endl;
 }
