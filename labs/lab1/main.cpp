@@ -1,6 +1,12 @@
 #include <iostream>
 #include "bitmap_image.hpp"
 
+
+// global variables > bad practice but temporary
+float gAlpha;
+float gBeta;
+float gGamma;
+
 struct Point {
     int x;
     int y;
@@ -40,25 +46,51 @@ Point create_point(std::vector<std::string> tokens) {
                  std::stoi(tokens[3]), std::stoi(tokens[4])};
 }
 
-// from video: https://www.youtube.com/watch?v=HYAgJN3x4GA
-// timestamp : 3 minutes 42 seconds
 /// Check if x and y are in the triangle using barycentric coordinates
 bool in_triangle(int x,int y, std::vector<Point> points) {
     Point& A = points[0];
     Point& B = points[1];
     Point& C = points[2];
 
-    float w1 = 0;
-    float w2 = 0;
+    float alpha;
+    float beta;
+    float gamma;
 
-    w1 = (A.x * (C.y - A.y) + (y - A.y) * (C.x - A.x) - x * (C.y - A.y)) /
-            ((B.y - A.y) * (C.x - A.x) -(B.x - A.x) * (C.y - A.y));
-    w2 = (y -A.y - w1 * (B.y - A.y)) /
-            (C.y - A.y);
+    // calculate beta , gamma
+    int matA[1][2] = {{x-A.x,y-A.y}};
+    int matB[2][2] = {{B.x-A.x, C.x-A.x},{B.y-A.y, C.y-A.y}};
+    float matBInverse[2][2];
 
-    if (w1 >= 0 && w2 >= 0 && w1 + w2 <= 1) {
+    float matResult[1][2];
+
+    // references to help with calculation
+    float a = matB[0][0];
+    float b = matB[0][1];
+    float c = matB[1][0];
+    float d = matB[1][1];
+    float inverse_scalar = 1/(a*d-b*c);
+
+    // get inverse of matB
+    matBInverse[0][0] = d * inverse_scalar;
+    matBInverse[0][1] = -b * inverse_scalar;
+    matBInverse[1][0] = -c * inverse_scalar;
+    matBInverse[1][1] = a * inverse_scalar;
+
+    // calculate result > perform dot prodcut of matBInverse*matB
+    matResult[0][0] = matBInverse[0][0] * matA[0][0] + matBInverse[0][1] * matA[0][1];
+    matResult[0][1] = matBInverse[1][0] * matA[0][0] + matBInverse[1][1] * matA[0][1];
+
+    beta = matResult[0][0];
+    gamma = matResult[0][1];
+    alpha = 1 - beta - gamma;
+
+    if (alpha > 0 && alpha < 1 && beta > 0 && beta < 1 && gamma > 0 && gamma < 1) {
+        gAlpha = alpha;
+        gBeta = beta;
+        gGamma = gamma;
         return true;
     }
+
     return false;
 }
 
@@ -105,29 +137,24 @@ int main(int argc, char** argv) {
     int y_lower_bound = 15;
     int y_upper_bound = 410;
 
-    rgb_t color = make_colour(255, 255, 255);
-
+//    Part 2:
+//    Modify your loop from part 1. Using barycentric coordinates,
+//    determine if the pixel lies within the triangle defined by
+//    the 3 provided points. If it is color it white, otherwise
+//    move on to the next pixel.
     for (int y = y_lower_bound; y < y_upper_bound; y++) {
         for (int x = x_lower_bound; x < x_upper_bound; x++) {
-            if (in_triangle(x,y, points)) {
+//            if (in_triangle(x,y, points)) {
+//                rgb_t color = make_colour(gAlpha*255, gBeta*255, gGamma*255);
+                rgb_t color = make_colour(255,255,255);
                 image.set_pixel(x,y,color);
-            }
+//            }
         }
     }
 
-    float w1;
-    float w2;
-    // x axis
-    // P = A + w1(B-A) + w2(C-A)
-    // y axis
-    // P = A + w1(B-A) + w2(C-A)
-    /*
-      Part 2:
-          Modify your loop from part 1. Using barycentric coordinates,
-          determine if the pixel lies within the triangle defined by
-          the 3 provided points. If it is color it white, otherwise
-          move on to the next pixel.
 
+
+    /*
       Part 3:
           For each pixel in the triangle, calculate the color based on
           the calculated barycentric coordinates and the 3 provided
@@ -136,6 +163,6 @@ int main(int argc, char** argv) {
           from 0 to 255. Be sure to make the conversion.
     */
 
-    image.save_image("triangle2.bmp");
+    image.save_image("triangle_square.bmp");
     std::cout << "Success" << std::endl;
 }
